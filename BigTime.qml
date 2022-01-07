@@ -18,7 +18,7 @@ import QtQuick 2.0
 import MuseScore 3.0
 
 MuseScore {
-	version: "1.0"
+	version: "1.1"
 	description: "BigTime"
 	menuPath: "Plugins.BigTime"
 	
@@ -28,6 +28,9 @@ MuseScore {
 		}
 		
 		var cursor = curScore.newCursor(); // TODO: Is this necessary?
+		
+		// ----------
+		// Full score
 		
 		// Delete all large time signatures so they can be rebuilt
 		var segment = curScore.firstSegment();
@@ -86,6 +89,40 @@ MuseScore {
 				}
 			}
 			segment = segment.next;
+		}
+		
+		// -----------
+		// Part scores
+		
+		for (var i = 0; i < curScore.excerpts.length; i++) {
+			var partScore = curScore.excerpts[i].partScore;
+			
+			// Make native time signatures normal
+			var segment = partScore.firstSegment();
+			while (segment !== null) {
+				if (segment.segmentType == 0x10) { // SegmentType.TimeSig
+					for (var track = 0; track < partScore.ntracks; track++) {
+						var element = segment.elementAt(track);
+						if (element && element.name === "TimeSig") {
+							element.color.a = 1;
+							element.scale.width = 1;
+						}
+					}
+				}
+				segment = segment.next;
+			}
+			
+			// Hide large time signatures
+			var segment = partScore.firstSegment();
+			while (segment !== null) {
+				for (var i = 0; i < segment.annotations.length; i++) {
+					var annotation = segment.annotations[i];
+					if (annotation.name === "StaffText" && annotation.subStyle === Tid.USER1) {
+						annotation.visible = false;
+					}
+				}
+				segment = segment.next;
+			}
 		}
 		
 		Qt.quit();
