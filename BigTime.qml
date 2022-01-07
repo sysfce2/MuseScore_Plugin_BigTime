@@ -23,6 +23,21 @@ MuseScore {
 	menuPath: "Plugins.BigTime"
 	
 	onRun: {
+		
+		// -----------------------
+		// Configurable parameters
+		
+		var TIMESIG_STYLE = Tid.USER1;
+		var TIMESIG_SIZE = 113; // pt (null to use style default)
+		var TIMESIG_WIDTH = 2; // scaling factor relative to native time signature width
+		
+		
+		
+		
+		// ------------------
+		// PLUGIN CODE BEGINS
+		// ------------------
+		
 		if (!curScore) {
 			Qt.quit();
 		}
@@ -34,10 +49,10 @@ MuseScore {
 		
 		// Delete all large time signatures so they can be rebuilt
 		var segment = curScore.firstSegment();
-		while (segment !== null) {
+		while (segment) {
 			for (var i = 0; i < segment.annotations.length; i++) {
 				var annotation = segment.annotations[i];
-				if (annotation.name === "StaffText" && annotation.subStyle === Tid.USER1) {
+				if (annotation.name === "StaffText" && annotation.subStyle === TIMESIG_STYLE) {
 					removeElement(annotation);
 				}
 			}
@@ -47,7 +62,7 @@ MuseScore {
 		// Hide and reserve space from native time signatures
 		// Do this first to allow page layout to reflow
 		var segment = curScore.firstSegment();
-		while (segment !== null) {
+		while (segment) {
 			if (segment.segmentType == 0x10) { // SegmentType.TimeSig
 				for (var track = 0; track < curScore.ntracks; track++) {
 					var element = segment.elementAt(track);
@@ -55,7 +70,7 @@ MuseScore {
 						console.log("tick:", segment.tick, "track:", track, "ts:", element.timesig.str);
 						
 						element.color.a = 0; // Sets alpha to 0
-						element.scale.width = 2;
+						element.scale.width = TIMESIG_WIDTH;
 					}
 				}
 			}
@@ -64,7 +79,7 @@ MuseScore {
 		
 		// Add large time signatures
 		var segment = curScore.firstSegment();
-		while (segment !== null) {
+		while (segment) {
 			if (segment.segmentType == 0x10) { // SegmentType.TimeSig
 				for (var track = 0; track < curScore.ntracks; track++) {
 					var element = segment.elementAt(track);
@@ -72,8 +87,10 @@ MuseScore {
 						if (track === 0) {
 							var txtTimeSig = newElement(Element.STAFF_TEXT);
 							txtTimeSig.autoplace = false;
-							txtTimeSig.subStyle = Tid.USER1;
-							txtTimeSig.fontSize = 113; // Too large to set in GUI
+							txtTimeSig.subStyle = TIMESIG_STYLE;
+							if (TIMESIG_SIZE) {
+								txtTimeSig.fontSize = TIMESIG_SIZE;
+							}
 							txtTimeSig.text = element.timesig.numerator + "\n" + element.timesig.denominator;
 							
 							//segment.annotations.push(txtTimeSig); // This doesn't work I guess
@@ -99,7 +116,7 @@ MuseScore {
 			
 			// Make native time signatures normal
 			var segment = partScore.firstSegment();
-			while (segment !== null) {
+			while (segment) {
 				if (segment.segmentType == 0x10) { // SegmentType.TimeSig
 					for (var track = 0; track < partScore.ntracks; track++) {
 						var element = segment.elementAt(track);
@@ -114,10 +131,10 @@ MuseScore {
 			
 			// Hide large time signatures
 			var segment = partScore.firstSegment();
-			while (segment !== null) {
+			while (segment) {
 				for (var i = 0; i < segment.annotations.length; i++) {
 					var annotation = segment.annotations[i];
-					if (annotation.name === "StaffText" && annotation.subStyle === Tid.USER1) {
+					if (annotation.name === "StaffText" && annotation.subStyle === TIMESIG_STYLE) {
 						annotation.visible = false;
 					}
 				}
