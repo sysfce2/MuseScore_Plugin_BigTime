@@ -18,8 +18,8 @@ import QtQuick 2.0
 import MuseScore 3.0
 
 MuseScore {
-	version: "1.1"
-	description: "BigTime"
+	version: "1.2"
+	description: "Large time signatures"
 	menuPath: "Plugins.BigTime"
 	
 	onRun: {
@@ -27,9 +27,30 @@ MuseScore {
 		// -----------------------
 		// Configurable parameters
 		
+		// Text style for large time signatures
 		var TIMESIG_STYLE = Tid.USER1;
-		var TIMESIG_SIZE = 113; // pt (null to use style default)
-		var TIMESIG_WIDTH = 2; // scaling factor relative to native time signature width
+		
+		// Font face (null to use style default)
+		var TIMESIG_FACE = "Bravura";
+		
+		// Size in points (null to use style default)
+		var TIMESIG_SIZE = 170;
+		
+		// Line separation (null to use style default)
+		// NYI - Not exposed in plugin API
+		//var TIMESIG_LINESEP = 0.13;
+		
+		// Scaling factor relative to native time signature width
+		var TIMESIG_WIDTH = 2.5;
+		
+		// Controls which Unicode codepoints to use for time signatures
+		// Refers to the codepoint for "0", others calculated by offset
+		// 0x30: Standard ASCII numbers
+		// 0xE080: SMuFL time signatures
+		// 0xF440: SMuFL large time signatures (Bravura)
+		// 0xF45D: SMuFL small time signatures (Bravura)
+		// 0xF506: SMuFL narrow time signatures (Bravura)
+		var TIMESIG_CODEPOINT_BASE = 0xF440;
 		
 		
 		
@@ -77,6 +98,15 @@ MuseScore {
 			segment = segment.next;
 		}
 		
+		function mkSmuflString(num) {
+			var str = "" + num;
+			var out = "";
+			for (var i = 0; i < str.length; i++) {
+				out += String.fromCodePoint(TIMESIG_CODEPOINT_BASE + str.codePointAt(i) - 0x30);
+			}
+			return out;
+		}
+		
 		// Add large time signatures
 		var segment = curScore.firstSegment();
 		while (segment) {
@@ -88,12 +118,11 @@ MuseScore {
 							var txtTimeSig = newElement(Element.STAFF_TEXT);
 							txtTimeSig.autoplace = false;
 							txtTimeSig.subStyle = TIMESIG_STYLE;
-							if (TIMESIG_SIZE) {
-								txtTimeSig.fontSize = TIMESIG_SIZE;
-							}
-							txtTimeSig.text = element.timesig.numerator + "\n" + element.timesig.denominator;
+							txtTimeSig.fontFace = TIMESIG_FACE;
+							txtTimeSig.fontSize = TIMESIG_SIZE;
+							txtTimeSig.align = Align.HCENTER | Align.TOP;
+							txtTimeSig.text = mkSmuflString(element.timesig.numerator) + "\n" + mkSmuflString(element.timesig.denominator);
 							
-							//segment.annotations.push(txtTimeSig); // This doesn't work I guess
 							cursor.track = 0;
 							cursor.rewindToTick(segment.tick);
 							cursor.add(txtTimeSig);
