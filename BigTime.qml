@@ -125,7 +125,10 @@ MuseScore {
 							
 							cursor.track = 0;
 							cursor.rewindToTick(segment.tick);
+							
+							txtTimeSig.visible = false; // For part scores
 							cursor.add(txtTimeSig);
+							txtTimeSig.visible = true; // Show in full score
 							
 							// Calculate required offset
 							var offset = element.pagePos.x + element.bbox.width/2 - txtTimeSig.pagePos.x;
@@ -153,18 +156,6 @@ MuseScore {
 							element.color.a = 1;
 							element.scale.width = 1;
 						}
-					}
-				}
-				segment = segment.next;
-			}
-			
-			// Hide large time signatures
-			var segment = partScore.firstSegment();
-			while (segment) {
-				for (var i = 0; i < segment.annotations.length; i++) {
-					var annotation = segment.annotations[i];
-					if (annotation.name === "StaffText" && annotation.subStyle === TIMESIG_STYLE) {
-						annotation.visible = false;
 					}
 				}
 				segment = segment.next;
