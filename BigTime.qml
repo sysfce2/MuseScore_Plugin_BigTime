@@ -18,7 +18,7 @@ import QtQuick 2.0
 import MuseScore 3.0
 
 MuseScore {
-	version: "1.2"
+	version: "1.3"
 	description: "Large time signatures"
 	menuPath: "Plugins.BigTime"
 	
@@ -102,7 +102,7 @@ MuseScore {
 			var str = "" + num;
 			var out = "";
 			for (var i = 0; i < str.length; i++) {
-				out += String.fromCodePoint(TIMESIG_CODEPOINT_BASE + str.codePointAt(i) - 0x30);
+				out += String.fromCharCode(TIMESIG_CODEPOINT_BASE + str.charCodeAt(i) - 0x30);
 			}
 			return out;
 		}
