@@ -18,7 +18,7 @@ import QtQuick 2.0
 import MuseScore 3.0
 
 MuseScore {
-	version: "1.3"
+	version: "1.4"
 	description: "Large time signatures"
 	menuPath: "Plugins.BigTime"
 	
@@ -34,14 +34,14 @@ MuseScore {
 		var TIMESIG_STYLE = Tid.USER1;
 		
 		// Font face (null to use style default)
-		var TIMESIG_FACE = "Bravura";
+		var TIMESIG_FACE = "Bravura Text";
 		
 		// Size in points (null to use style default)
-		var TIMESIG_SIZE = 170;
+		var TIMESIG_SIZE = 200;
 		
 		// Line separation (null to use style default)
 		// NYI - Not exposed in plugin API
-		//var TIMESIG_LINESEP = 0.13;
+		//var TIMESIG_LINESEP = 0.34;
 		
 		// Scaling factor relative to native time signature width
 		var TIMESIG_WIDTH = 2.5;
