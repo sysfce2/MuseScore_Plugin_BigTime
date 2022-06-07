@@ -27,6 +27,9 @@ MuseScore {
 		// -----------------------
 		// Configurable parameters
 		
+		// Which staves (0-indexed) to show large time signatures
+		var TIMESIG_STAVES = [0];
+		
 		// Text style for large time signatures
 		var TIMESIG_STYLE = Tid.USER1;
 		
@@ -88,7 +91,7 @@ MuseScore {
 				for (var track = 0; track < curScore.ntracks; track++) {
 					var element = segment.elementAt(track);
 					if (element && element.name === "TimeSig") {
-						console.log("tick:", segment.tick, "track:", track, "ts:", element.timesig.str);
+						//console.log("tick:", segment.tick, "track:", track, "ts:", element.timesig.str);
 						
 						element.color.a = 0; // Sets alpha to 0
 						element.scale.width = TIMESIG_WIDTH;
@@ -114,25 +117,30 @@ MuseScore {
 				for (var track = 0; track < curScore.ntracks; track++) {
 					var element = segment.elementAt(track);
 					if (element && element.name === "TimeSig") {
-						if (track === 0) {
-							var txtTimeSig = newElement(Element.STAFF_TEXT);
-							txtTimeSig.autoplace = false;
-							txtTimeSig.subStyle = TIMESIG_STYLE;
-							txtTimeSig.fontFace = TIMESIG_FACE;
-							txtTimeSig.fontSize = TIMESIG_SIZE;
-							txtTimeSig.align = Align.HCENTER | Align.TOP;
-							txtTimeSig.text = mkSmuflString(element.timesig.numerator) + "\n" + mkSmuflString(element.timesig.denominator);
-							
-							cursor.track = 0;
-							cursor.rewindToTick(segment.tick);
-							
-							txtTimeSig.visible = false; // For part scores
-							cursor.add(txtTimeSig);
-							txtTimeSig.visible = true; // Show in full score
-							
-							// Calculate required offset
-							var offset = element.pagePos.x + element.bbox.width/2 - txtTimeSig.pagePos.x;
-							txtTimeSig.offsetX += offset;
+						// Check if in TIMESIG_STAVES
+						for (var itss = 0; itss < TIMESIG_STAVES.length; itss++) {
+							if (track === TIMESIG_STAVES[itss] * 4) {
+								var txtTimeSig = newElement(Element.STAFF_TEXT);
+								txtTimeSig.autoplace = false;
+								txtTimeSig.subStyle = TIMESIG_STYLE;
+								txtTimeSig.fontFace = TIMESIG_FACE;
+								txtTimeSig.fontSize = TIMESIG_SIZE;
+								txtTimeSig.align = Align.HCENTER | Align.TOP;
+								txtTimeSig.text = mkSmuflString(element.timesig.numerator) + "\n" + mkSmuflString(element.timesig.denominator);
+								
+								cursor.track = track;
+								cursor.rewindToTick(segment.tick);
+								
+								txtTimeSig.visible = false; // For part scores
+								cursor.add(txtTimeSig);
+								txtTimeSig.visible = true; // Show in full score
+								
+								// Calculate required offset
+								var offset = element.pagePos.x + element.bbox.width/2 - txtTimeSig.pagePos.x;
+								txtTimeSig.offsetX += offset;
+								
+								break; // for (var tss in TIMESIG_STAVES)
+							}
 						}
 					}
 				}
