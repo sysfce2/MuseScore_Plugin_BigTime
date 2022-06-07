@@ -154,6 +154,10 @@ MuseScore {
 		for (var i = 0; i < curScore.excerpts.length; i++) {
 			var partScore = curScore.excerpts[i].partScore;
 			
+			if (partScore.is(curScore)) {
+				continue;
+			}
+			
 			// Make native time signatures normal
 			var segment = partScore.firstSegment();
 			while (segment) {
